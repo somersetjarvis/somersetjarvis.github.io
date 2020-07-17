@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)http://localhost:7882/portfolio-details.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>MNIST Data-Set</title>
+  <meta name="Description" content="Analysis of the MNIST data set using a variational Autoencoder">
+  <meta name="Machine Learning" content="Variational Autoencoder">
+
+  <!-- Favicons -->
+  <link href="http://localhost:7882/assets/img/favicon.png" rel="icon">
+  <link href="http://localhost:7882/assets/img/favicon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="./MNIST Data-Set_files/css" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="./MNIST Data-Set_files/bootstrap.min.css" rel="stylesheet">
+  <link href="./MNIST Data-Set_files/icofont.min.css" rel="stylesheet">
+  <link href="./MNIST Data-Set_files/boxicons.min.css" rel="stylesheet">
+  <link href="./MNIST Data-Set_files/venobox.css" rel="stylesheet">
+  <link href="./MNIST Data-Set_files/owl.carousel.min.css" rel="stylesheet">
+  <link href="./MNIST Data-Set_files/aos.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="./MNIST Data-Set_files/style.css" rel="stylesheet">
+</head>
+
+<body data-aos-easing="ease-in-out-back" data-aos-duration="1000" data-aos-delay="0">
+
+  <!-- ======= Mobile nav toggle button ======= -->
+  <button type="button" class="mobile-nav-toggle d-xl-none"><i class="icofont-navigation-menu"></i></button>
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="d-flex flex-column">
+
+      <div class="profile">
+        <img src="./MNIST Data-Set_files/profile-img2.jpg" alt="" class="img-fluid rounded-circle">
+        <h1 class="text-light"><a href="http://localhost:7882/index.html">Adam Paslawski</a></h1>
+        <div class="social-links mt-3 text-center">
+          <a href="http://localhost:7882/linkedin.com/in/adam-paslawski-098b53162" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <ul>
+          <li class="active"><a href="http://localhost:7882/index.html"><i class="bx bx-home"></i> <span>Home</span></a></li>
+          <li><a href="http://localhost:7882/index.html#about"><i class="bx bx-user"></i> <span>About</span></a></li>
+          <li><a href="http://localhost:7882/index.html#resume"><i class="bx bx-file-blank"></i> <span>Resume</span></a></li>
+          <li><a href="http://localhost:7882/index.html#portfolio"><i class="bx bx-book-content"></i> Portfolio</a></li>
+        </ul>
+      </nav><!-- .nav-menu -->
+      <button type="button" class="mobile-nav-toggle d-xl-none"><i class="icofont-navigation-menu"></i></button>
+    </div>
+  </header><!-- End Header -->
+    <!-- ======= Hero Section ======= -->
+    <section id="hero-p" class="hero-2 d-flex flex-column justify-content-center align-items-center">
+      <div class="hero-container aos-init aos-animate" data-aos="fade-in">
+        <h1 class="portfoli-title">Teaching a computer to Handwrite</h1>
+      </div>
+    </section><!-- End Hero -->
+
+  <main id="main">
+    <!-- ======= Report Begins Here======= -->
+    <section id="portfolio-details" class="portfolio-details justify-content-center">
+      <div class="container">
+        <!-- OVERVIEW -->
+        <div class="portfolio-description">
+          <h1>Overview</h1>
+          <p>
+            The MNIST data set is a collection of about 70,000 28x28 pixel images of handwritten digits like the one below.
+          </p>
+          <div class="row aos-init aos-animate" data-aos="fade-left">
+            <img class="square-img" src="./MNIST Data-Set_files/entire9.png" alt="">
+            <p class="col-lg-12">
+              The goal of the project is to use a variational autoencoder to learn from this data and create a latent distribution from which we can draw samples from and sample handwritten digits.
+            </p>
+          </div>
+          <div class="row aos-init" data-aos="fade-left">
+            <h5>Disclaimer</h5>
+            <p>
+              The techniques used in this project were done in the a course called Statistics
+               for Machine Learning taught by <a href="http://www.cs.toronto.edu/~duvenaud/">David Duvenaud</a>
+              and <a href="http://www.jessebett.com/">Jesse Bettencourt</a> and based on the paper <a href="https://arxiv.org/pdf/1312.6114.pdf">Auto-Encoding Variational Bayes
+              </a>.
+            </p>
+            <p>Now that credit has been given where it is most certainly due, lets get into it!</p>
+          </div>
+          <div class="row aos-init" data-aos="fade-left">
+            <h1 class="col-lg-12">The first obvious question:<br><em>"What the heck is a variational autoencoder?"</em></h1>
+            <p class="col-lg-12">A variational autoencoder has two pieces:</p>
+            <ol class="col-lg-12">
+              <li>encoder</li>
+              <li>decoder</li>
+            </ol>
+          </div>
+        </div>
+
+
+        <!-- Encoder section -->
+        <div class="portfolio-description">
+          <div class="row aos-init" data-aos="fade-left">
+            <h1 class="col-lg-12">The Encoder</h1>
+            <p class="col-lg-12">The Encoder takes a 28x28 pixel image and transforms those pixels with some fancy math to produce a latent representation of that image.</p>
+            <p class="col-lg-12">If you're not sure what <em>latent version</em> is, thats fine just think of it as a much smaller condensed version of the image, for this case were going from 784 dimensions  (784 pixels) down to a mean and standard deviation for a normal distribution.</p>
+            <img class="horrizontal-img col-lg-12" src="./MNIST Data-Set_files/encoder.png" alt="Encoder Network">
+            <p class="col-lg-12">Implemented like this:</p>
+            <pre>              <code>
+def neural_net_predict(params, inputs):
+"""Params is a list of (weights, bias) tuples.
+  inputs is an (N x D) matrix.
+  Applies batch normalization to every layer but the last."""
+for W, b in params:
+    outputs = np.dot(inputs, W) + b  # linear transformation
+    inputs = np.tanh(outputs)           # nonlinear transformation
+return outputs
+
+def nn_predict_gaussian(params, inputs):
+  #Returns means and diagonal variances
+  return unpack_gaussian_params(neural_net_predict(params, inputs))
+
+
+def encoder(x , rec_params):
+  return(nn_predict_gaussian(rec_params,x))
+              </code> 
+            </pre>
+        </div>
+
+
+
+        <!-- Decoder section -->
+        <div class="portfolio-description">
+          <div class="row aos-init" data-aos="fade-left">
+            <h1 class="col-lg-12">The Decoder</h1>
+            <p class="col-lg-12">The decoder does the opposite in a sense. It takes an encoding of an image and <em>decodes</em> it to generate an image.</p>
+            <p class="col-lg-12">So it take a latent representation of an image and transforms it into a 28x28 greyscale image.</p>
+            <img class="horrizontal-img" src="./MNIST Data-Set_files/decoder.png" alt="Decoder network">
+            <p class="col-lg-12">Implemented like this:</p>
+            <pre>              <code>
+def decoder(params,z):
+  return(neural_net_predict(params,z))
+              </code> 
+            </pre>
+          </div>
+        </div>
+
+
+        <div class="portfolio-description ">
+          <div class="row" data-aoe="fade-left">
+            <h1 class=" col-lg-12">Well That was easy!</h1>
+            <p class="col-lg-12">Just kidding! If you encode and decode and image you should hope to get that same image back, but in the beginning we would get something like this!</p>
+            <img class="col-lg-12 horrizontal-img" src="./MNIST Data-Set_files/decoder-foreal.jpg" alt="Encoder Decoder network producing noise">
+            <p class="col-lg-12">Thats because the mathematical transformations are totally random and havent learned how to deconstruct and reconstruct these images ... yet.</p>
+          </div>
+        </div>
+
+        <div class="portfolio-description">
+          <div class="row" data-aoe="fade-left">
+            <h1 class="col-lg-12">Training</h1>
+            <p class="col-lg-12">Just like great athletes , variational autoencoders need lots of training.</p>
+            <p class="col-lg-12">We will do this by trying to make sure when we deconstruct and reconstruct an image we get close to the same thing back.</p>
+            <p class="col-lg-12">Mathematically we are maximizing a lower bound estimate of the loss which is outlined in <a href="https://arxiv.org/pdf/1312.6114.pdf">the paper this is based on.</a></p>
+            <p class="col-lg-12">Implementing this in a scalable  way:</p>
+            <pre>              <code>
+def vae_lower_bound(gen_params, rec_params, data, rs):
+  # We use a simple Monte Carlo estimate of the KL
+  # divergence from the prior.
+  q_means, q_log_stds = encoder(data , rec_params)
+  latents = sample_diag_gaussian(q_means , q_log_stds,npr.RandomState(0))
+  log_q_z = diag_gaussian_log_density(latents,q_means,q_log_stds)
+  log_prior_z = log_prior(latents)
+  log_p_x_given_z = log_likelihood(gen_params, data, latents)
+  joint = log_prior_z + log_p_x_given_z
+  elbo_estimate = np.mean(joint - log_q_z)
+  return elbo_estimate
+              </code>
+            </pre>
+          </div>
+          <p class="col-lg-12">Now if we compare original images with the generated version below we can see:</p>
+          <img class="horrizontal-img" ,="" src="./MNIST Data-Set_files/2by10plot.png" alt="">
+          <p class="col-lg-12">They look remarkably similar, which means our model has been trained well!</p>
+        </div>
+        <div class="portfolio-description ">
+          <div class="row" data-aoe="fade-left">
+            <h1 class="col-lg-12">Application</h1>
+            <!-- Application 1 -->
+            <h2 class=" col-lg-12">1. Getting Our Computer to Handwrite</h2>
+            <p class="col-lg-12">One application of a variational autoencoder is using it to generate unseen data.</p>
+            <img class="square-img" src="./MNIST Data-Set_files/entire9-generated.png" alt="Handwritten number 9">
+            <p class="col-lg-12">So we have learned what a handwritten "9" looks like, sampled it from our latent distribution and decoded it to the image you see above using our decoder network.</p>
+            <!-- Application 2 -->
+            <h2 class=" col-lg-12">2. Interpolating Between Handwritten Numbers.</h2>
+            <p class="col-lg-12">Since the digits "live" in  a latent space so we can interpolate between numbers and see how the model is understanding how digits are related.</p>
+            <img class="horrizontal-img" src="./MNIST Data-Set_files/interpolation.png" alt="Handwritten number 9">
+            <!-- Application 3 -->
+            <h2 class=" col-lg-12">3. Predicting the bottom half of the image given the top</h2>
+            <p class="col-lg-12">Another application is generating the bottom half of the image given the top.</p>
+            <p class="col-lg-12">This requires a little more work but is based on the exact same principles.</p>
+            <!-- <img class = "square-img" src="assets/img/portfolio/vae/entire9-generated.png" alt="Handwritten number 9"> -->
+          </div>
+        </div>
+      </div>
+    </div></section>
+    <!-- End Report -->
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+
+  </footer><!-- End  Footer -->
+
+  <a href="http://localhost:7882/portfolio-details.html#" class="back-to-top" style="display: inline;"><i class="icofont-simple-up"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="./MNIST Data-Set_files/jquery.min.js.download"></script>
+  <script src="./MNIST Data-Set_files/bootstrap.bundle.min.js.download"></script>
+  <script src="./MNIST Data-Set_files/jquery.easing.min.js.download"></script>
+  <script src="./MNIST Data-Set_files/validate.js.download"></script>
+  <script src="./MNIST Data-Set_files/jquery.waypoints.min.js.download"></script>
+  <script src="./MNIST Data-Set_files/counterup.min.js.download"></script>
+  <script src="./MNIST Data-Set_files/isotope.pkgd.min.js.download"></script>
+  <script src="./MNIST Data-Set_files/venobox.min.js.download"></script>
+  <script src="./MNIST Data-Set_files/owl.carousel.min.js.download"></script>
+  <script src="./MNIST Data-Set_files/typed.min.js.download"></script>
+  <script src="./MNIST Data-Set_files/aos.js.download"></script>
+
+  <!-- Template Main JS File -->
+  <script src="./MNIST Data-Set_files/main.js.download"></script>
+
+ <script data-prepros-origin-host="localhost" src="./MNIST Data-Set_files/prepros.js.download"> </script>
+
+
+</body></html>

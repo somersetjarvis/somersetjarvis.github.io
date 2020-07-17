@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Predicting Radon Levels</title>
+  <meta name="Description" content="Analysis of the MNIST data set using a variational Autoencoder" >
+  <meta name="Machine Learning" content="Variational Autoencoder" >
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/favicon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/icofont/icofont.min.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/venobox/venobox.css" rel="stylesheet">
+  <link href="assets/vendor/owl.carousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- ======= Mobile nav toggle button ======= -->
+  <button type="button" class="mobile-nav-toggle d-xl-none"><i class="icofont-navigation-menu"></i></button>
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="d-flex flex-column">
+
+      <div class="profile">
+        <img src="assets/img/profile-img2.jpg" alt="" class="img-fluid rounded-circle">
+        <h1 class="text-light"><a href="index.html">Adam Paslawski</a></h1>
+        <div class="social-links mt-3 ">
+          <a href="linkedin.com/in/adam-paslawski-098b53162" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <ul>
+          <li class="active"><a href="index.html"><i class="bx bx-home"></i> <span>Home</span></a></li>
+          <li><a href="index.html#about"><i class="bx bx-user"></i> <span>About</span></a></li>
+          <li><a href="index.html#resume"><i class="bx bx-file-blank"></i> <span>Resume</span></a></li>
+          <li><a href="index.html#portfolio"><i class="bx bx-book-content"></i> Portfolio</a></li>
+        </ul>
+      </nav><!-- .nav-menu -->
+      <button type="button" class="mobile-nav-toggle d-xl-none"><i class="icofont-navigation-menu"></i></button>
+    </div>
+  </header><!-- End Header -->
+    <!-- ======= Hero Section ======= -->
+    <section id="hero-radon" class="hero-2 d-flex flex-column justify-content-center align-items-center">
+      <div class="hero-container" data-aos="fade-in">
+        <h1 class = "portfoli-title">Creating a Model for Radon Levels in Houses</h1>
+      </div>
+    </section><!-- End Hero -->
+
+  <main id="main">
+    <!-- ======= Report Begins Here======= -->
+    <section id="portfolio-details" class="portfolio-details">
+      <div class="container">
+        <!-- OVERVIEW -->
+        <div class="portfolio-description">
+          <h1 class = "col-lg-12">Overview</h1>
+          <div class="row" data-aos="fade-left">
+            <p class = "col-lg-12">
+              Radon is a carcinogenic naturally ocurring gas which is estimated to cause thousands of lung cancer deaths every year in the United States.
+            </p>
+            <p class = "col-lg-12">In this project I modelled 85 counties in Minnesota using a heirarchal model that leverages partial pooling.</p>
+            <div class="col-lg-12 square-image">
+              <img src="assets/img/archal/math-model.png" alt="" class="col-lg-12">
+            </div>
+            <p>graphically it looks something like this:</p>
+            <img  class = "col-lg-12" src="assets/img/archal/radonflowchart.png" alt="
+            hierarchal model">
+        </div>
+
+
+        <!-- Encoder section -->
+        <div class="portfolio-description">
+          <div class="row" data-aos ="fade-left">
+            <h1 class="col-lg-12">Assumptions</h1>
+            <p>This model requires us to make a couple key assumptions</p>
+            <ol>
+              <li>Counties come from some underlying distribution based on some hyper paramaters.</li>
+              <li>Houses vary within a specific county dependant on that county.</li>
+            </ol>
+            <h2 class = "col-lg-12">Is this reasonable?</h2>
+            <p>
+              We are asserting that houses are part of some distribution within a specific county (in this case based on soil radon levels) and that counties themselves are part of some distribution.
+            </p>
+            <p>
+              The first assumption seems obviously reasonable, and the second makes a lot of sense when you consider the counties would be subject to similar legislation and building codes being in Minnesota and the United States as a whole.
+            </p>
+            <h1 class = "col-lg-12" >The Predictors</h1>
+            <ul>
+              <li>County Level: Uranium measurement of the soil.</li>
+              <li>House level : Whether or not the measurement was taken in the basement.</li>
+            </ul>
+            </div>
+        </div>
+
+
+
+        <!-- Decoder section -->
+        <div class="portfolio-description">
+          <div class="row" data-aos ="fade-left">
+            <h1 class = "col-lg-12">The Analysis</h1>
+            <p class = "col-lg-12">We will a Bayesian approach leveraging some of the tools available , speciifcally Stan which is a useful programming language for Bayesian models.</p>
+            <p class = "col-lg-12">Implementing the model specified above... </p>
+            <div class="container ">
+              <pre>
+                <code>
+data {
+  int<lower=1> num_county; //# of counties
+  int<lower=1> I;          // # of observations
+  int<lower=1> J;          // # of collumns in dataset
+  matrix[I,J] obs;
+  vector[num_county] mu;   //County level uranium measurement
+  int counties[I];
+}
+parameters {
+  vector[num_county] z;
+  vector[num_county] alpha;
+  real gamma_0;
+  real gamma_1;
+  real beta;
+  real<lower=0> sigma;
+  real<lower=0> tau;
+}
+
+
+model {
+    //priors yes theres 5 of them I know its crazy
+    //beta gamma_0, gamma_1
+    beta ~ normal(0,9);
+    gamma_0 ~ normal(0,9);
+    gamma_1 ~ normal(0,9);
+    //sigma tau
+    sigma ~ normal(0,9);
+    tau ~ normal(0,9);
+    //liklihood
+    for (j in 1:num_county){
+      z[j] ~ normal(0,1);
+    }
+    //First level of the heirarchal model
+    for (i in 1:I){
+      obs[i,3] ~ normal(alpha[counties[i]] + beta*obs[i,1], sigma);
+    }
+    //Second level of heirarchal model
+    for (j in 1:num_county){
+      alpha[j] ~ normal(gamma_0 + gamma_1*mu[j]+2*z[j]*tau,tau);
+    }
+}
+                </code> 
+              </pre>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="portfolio-description ">
+          <div class="row" data-aoe = "fade-left">
+            <h1 class = " col-lg-12" >Evaluating the Implementation: </h1>
+            <p class = "col-lg-12"> One extremely important aspect of any bayesian analysis is the prior predictive distribution and ensuring that it is reasonable. If we simulate from our prior we can see the types of values that the prior allows for.</p>
+            <div class="container">
+              <img src="assets/img/archal/radonprior.jpg" alt="prior predictive distribution">
+            </div>
+            <p class = "col-lg-12">As you can see the prior allows for and expects to see radon levels within a normal range but also allows for some outliers and allows the data to surprise us a little bit.</p>
+            <p class = "col-lg-12">For example the largest draw from our prior predictive distribution was three times larger than the largest actual observation in the data set.</p>
+            <p class="col-lg-12">As far as priors go this is quite uninformative, but this is intentional as I have minimal experience that would give me some insight as to what radon levels in Minnesota should look like.</p>
+            <h1 class = "col-lg-12">The Model</h1>
+            <p class = "col-lg-12">The output parameters of note were:</p>
+            <div class="container">
+              <img src="assets/img/archal/coefficients.png" alt="">
+            </div>
+            <p class = "col-lg-12">So the result is a set of parameters for a model built around our assumptions that we stated earlier.</p>
+          </div>
+        </div>
+
+        <div class="portfolio-description ">
+          <div class="row" data-aoe = "fade-left">
+            <h1 class="col-lg-12">Evaluating the Results</h1>
+            <h2 class = " col-lg-12" >Comparing to a no pooling case</h2>
+            <p>Such a case would look something like this:</p>
+            <div class="container">
+              <img src="assets/img/archal/no-pooling.png" alt="">
+            </div>
+            <p class = "col-lg-12">If we assume no pooling and estimate each neighbourhood independently the results are far worse.</p>
+            <p class = "col-lg-12">The estimate for each neighbourhood has massive variance and is very unreliable, in reality if we analyze the data in this way the results are essentially useless.</p>
+            <h2 class="col-lg-12">Comparing to the total pooling case.</h2>
+            <p>Total pooling would have a model that looks more like this</p>
+            <div class="container">
+              <img src="assets/img/archal/total-pooling.png" alt="">
+            </div>
+            <p>Which albeit performs better than no pooling but still has estimates that are worse than the partial pooling.</p>
+          </div>
+        </div>
+        <div class="portfolio-description ">
+          <div class="row" data-aoe = "fade-left">
+            <h1>Using the Results</h1>
+            <p>Plainly, the result is a model that can predict radon levels in a household. Radon levels are highly correlated to some health complications, specifically lung cancer.</p>
+            <h2 class = "col-lg-12">Recommendations</h2>
+            <p>The analysis clearly shows that having a basement can make it far easier for radon gas to enter the home, especially in areas where there is a high radon level in the soil.</p>
+            <p>In combination with some data on Radon gas' conection to lung cancer, this model could be used to determine when it is too costly to the population to have basements in certain areas. Thus, informing building codes and regulations for the area based on a quantitative metric, projected health care costs, and health risk to residents.</p>
+          </div>
+          <div class="row" data-aoe = "fade-left">
+            <h1>Summary</h1>
+            <p>In the report we went through each of these seven steps in detail.</p>
+            <ol>
+              <li>We stated the assumptions for our model.</li>
+              <li>We made sure our assumptions made sense.</li>
+              <li>We determined the predictors that would be used.</li>
+              <li>We performed the analysis according to those assumptions and predictors.</li>
+              <li>We evaluated our implementation and ensured our prior was reasonable.</li>
+              <li>We benchmarked our model by comparing it to other potential models to ensure we had quality results that fully utilized the data we had.</li>
+              <li>We discussed how the results could be used to better society and how we could proceed.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- End Report -->
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+
+  </footer><!-- End  Footer -->
+
+  <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/jquery/jquery.min.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/jquery.easing/jquery.easing.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/waypoints/jquery.waypoints.min.js"></script>
+  <script src="assets/vendor/counterup/counterup.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/venobox/venobox.min.js"></script>
+  <script src="assets/vendor/owl.carousel/owl.carousel.min.js"></script>
+  <script src="assets/vendor/typed.js/typed.min.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
